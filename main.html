@@ -1,18 +1,3 @@
-I can see both issues clearly from the screenshots:
-Image 1 (Disqus native): YouTube links render as a proper embedded thumbnail with the play button overlay.
-Image 2 (your Discord version): Two bugs:
-
-The raw HTML (<a href="...">&gt;url&lt;/a&gt;) is leaking as visible text — the HTML isn't being stripped before display
-The URL appears twice as duplicate unfurl cards
-Other users' messages also show raw <a href> tags
-
-Let me fix both in the JS — the HTML stripping bug in normalize() / formatBody(), the duplicate unfurl, and add a proper YouTube embed card.Viewed 3 files, ran a commandViewed 3 files, ran a commandRead the current output file to get the exact text to replaceFind all relevant function locationsScriptView normalize, formatBody, extractUrls, and the URL rendering sectionView the normalize function and the URL/embed rendering sectionDoneNow I have a clear picture of all three bugs. Let me fix them all:
-
-Raw HTML leaking — p.raw_message from Disqus already contains HTML (<a href="...">...</a>), but decodeEntities only decodes entities, it doesn't strip tags. We need to strip HTML tags from raw to get plain text, then re-extract URLs from that.
-Duplicate unfurls — extractUrls(m.raw) runs on the HTML-containing raw, finding the URL twice (once in href= and once as link text).
-YouTube embed — detect YouTube URLs and render a proper thumbnail card.
-Fix 1: In normalize(), strip HTML from raw_message to get clean plain text. Use raw_message if available (plain text from Disqus API), fall back to stripping HTML from message field.Fix 1: In normalize(), strip HTML from raw_message to get clean plain text. Use raw_message if available (plain text from Disqus API), fall back to stripping HTML from message field.Fix 1: In normalize(), strip HTML from raw_message to get clean plain text. Use raw_message if available (plain text from Disqus API), fall back to stripping HTML from message field.atlantis-hq-upgraded.html+44-19
-
 <!doctype html>
 <html lang="en">
 <head>
